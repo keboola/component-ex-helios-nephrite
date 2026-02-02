@@ -1,0 +1,1 @@
+https://github.com/keboola/component-ex-helios-nephrite/blob/master/LICENSE.md
