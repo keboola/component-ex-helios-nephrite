@@ -1,19 +1,78 @@
 {
   "type": "object",
-  "title": "extractor configuration",
-  "required": [
-    "print_hello"
-  ],
+  "title": "Helios Nephrite Extractor Configuration",
+  "required": ["connection"],
   "properties": {
-    "print_hello": {
-      "type": "boolean",
-      "title": "Print Hello",
+    "connection": {
+      "type": "object",
+      "title": "Connection",
+      "required": ["server_url", "#password", "user_name", "db_profile"],
+      "properties": {
+        "server_url": {
+          "type": "string",
+          "title": "Server URL",
+          "description": "Helios Nephrite application server URL (e.g., https://your-server.heliosnephrite.cz)",
+          "propertyOrder": 1
+        },
+        "user_name": {
+          "type": "string",
+          "title": "User Name",
+          "description": "Login username (format: DOMAIN\\firstname.lastname for Windows auth)",
+          "propertyOrder": 2
+        },
+        "#password": {
+          "type": "string",
+          "title": "Password",
+          "format": "password",
+          "description": "Login password",
+          "propertyOrder": 3
+        },
+        "db_profile": {
+          "type": "string",
+          "title": "Database Profile",
+          "description": "Database profile name",
+          "propertyOrder": 4
+        },
+        "use_windows_authentication": {
+          "type": "boolean",
+          "title": "Use Windows Authentication",
+          "default": false,
+          "propertyOrder": 5
+        },
+        "language_id": {
+          "type": "string",
+          "title": "Language",
+          "default": "en",
+          "enum": ["cs", "en", "de", "sk"],
+          "enumNames": ["Czech", "English", "German", "Slovak"],
+          "propertyOrder": 6
+        }
+      },
       "propertyOrder": 1
+    },
+    "batch_size": {
+      "type": "integer",
+      "title": "Batch Size",
+      "description": "Number of records per API request",
+      "default": 1000,
+      "minimum": 1,
+      "maximum": 10000,
+      "propertyOrder": 2
+    },
+    "requests_per_minute": {
+      "type": "integer",
+      "title": "Requests Per Minute",
+      "description": "Maximum number of API requests per minute (rate limiting)",
+      "default": 30,
+      "minimum": 1,
+      "maximum": 600,
+      "propertyOrder": 3
     },
     "debug": {
       "type": "boolean",
-      "title": "Debug",
-      "propertyOrder": 2
+      "title": "Debug Mode",
+      "default": false,
+      "propertyOrder": 4
     }
   }
 }

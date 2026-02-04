@@ -1,1 +1,30 @@
-{}
+{
+  "type": "object",
+  "title": "Endpoint Configuration",
+  "required": ["entity"],
+  "properties": {
+    "entity": {
+      "type": "string",
+      "title": "Entity",
+      "description": "Select entity to extract",
+      "enum": ["companies", "contacts", "employees", "products", "departments", "branchOffices", "resources", "warehouses", "vatCodes"],
+      "enumNames": ["Companies", "Contacts", "Employees", "Products", "Departments", "Branch Offices", "Resources", "Warehouses", "VAT Codes"],
+      "propertyOrder": 1
+    },
+    "table_name": {
+      "type": "string",
+      "title": "Output Table Name",
+      "description": "Custom output table name (optional, defaults to entity name)",
+      "propertyOrder": 2
+    },
+    "load_type": {
+      "type": "string",
+      "title": "Load Type",
+      "description": "Loading mode: incremental (only new/modified records) or full (all records)",
+      "enum": ["incremental_load", "full_load"],
+      "enumNames": ["Incremental Load", "Full Load"],
+      "default": "incremental_load",
+      "propertyOrder": 3
+    }
+  }
+}

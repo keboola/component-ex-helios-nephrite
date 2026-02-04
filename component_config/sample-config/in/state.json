@@ -1,1 +1,17 @@
-{"data_delta": "10222018"}
+{
+  "last_run": "2024-01-15T10:30:00Z",
+  "endpoints": {
+    "companies": {
+      "last_incremental_value": 1705316400,
+      "last_incremental_field": "timestamp",
+      "last_run_iso": "2024-01-15T10:00:00Z",
+      "records_extracted": 1523
+    },
+    "contacts": {
+      "last_incremental_value": 1705316200,
+      "last_incremental_field": "timestamp",
+      "last_run_iso": "2024-01-15T09:56:40Z",
+      "records_extracted": 4521
+    }
+  }
+}

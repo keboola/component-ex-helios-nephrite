@@ -3,41 +3,21 @@ revision = 1
 requires-python = ">=3.13"
 
 [[package]]
-name = "helios-nephrite"
-source = { virtual = "." }
-dependencies = [
-    { name = "flake8" },
-    { name = "freezegun" },
-    { name = "keboola-component" },
-    { name = "keboola-http-client" },
-    { name = "keboola-utils" },
-    { name = "mock" },
-    { name = "pydantic" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "flake8", specifier = ">=7.2.0" },
-    { name = "freezegun", specifier = ">=1.5.1" },
-    { name = "keboola-component", specifier = ">=1.6.10" },
-    { name = "keboola-http-client", specifier = ">=1.0.1" },
-    { name = "keboola-utils", specifier = ">=1.1.0" },
-    { name = "mock", specifier = ">=5.2.0" },
-    { name = "pydantic", specifier = ">=2.11.3" },
-    { name = "ruff", specifier = ">=0.11.5" },
-]
-
-[package.metadata.requires-dev]
-dev = []
-
-[[package]]
 name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ee/67/531ea369ba64dcff5ec9c3402f9f51bf748cec26dde048a2f973a4eea7f5/annotated_types-0.7.0.tar.gz", hash = "sha256:aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89", size = 16081 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/78/b6/6307fbef88d9b5ee7421e68d78a9f162e0da4900bc5f5793f6d3d0e34fb8/annotated_types-0.7.0-py3-none-any.whl", hash = "sha256:1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53", size = 13643 },
+]
+
+[[package]]
+name = "backoff"
+version = "2.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/d7/5bbeb12c44d7c4f2fb5b56abce497eb5ed9f34d85701de869acedd602619/backoff-2.2.1.tar.gz", hash = "sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba", size = 17001 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/df/73/b6e24bd22e6720ca8ee9a85a0c4a2971af8497d8f3193fa05390cbd46e09/backoff-2.2.1-py3-none-any.whl", hash = "sha256:63579f9a0628e06278f7e47b7d7d5b6ce20dc65c5e96a6f3ca99a6adca0396e8", size = 15148 },
 ]
 
 [[package]]
@@ -122,6 +102,38 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2c/ef/722b8d71ddf4d48f25f6d78aa2533d505bf3eec000a7cacb8ccc8de61f2f/freezegun-1.5.1.tar.gz", hash = "sha256:b29dedfcda6d5e8e083ce71b2b542753ad48cfec44037b3fc79702e2980a89e9", size = 33697 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/0b/0d7fee5919bccc1fdc1c2a7528b98f65c6f69b223a3fd8f809918c142c36/freezegun-1.5.1-py3-none-any.whl", hash = "sha256:bf111d7138a8abe55ab48a71755673dbaa4ab87f4cff5634a4442dfec34c15f1", size = 17569 },
+]
+
+[[package]]
+name = "helios-nephrite"
+source = { virtual = "." }
+dependencies = [
+    { name = "backoff" },
+    { name = "flake8" },
+    { name = "freezegun" },
+    { name = "keboola-component" },
+    { name = "keboola-http-client" },
+    { name = "keboola-utils" },
+    { name = "mock" },
+    { name = "pydantic" },
+    { name = "pyrate-limiter" },
+    { name = "requests" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "backoff", specifier = ">=2.2.1" },
+    { name = "flake8", specifier = ">=7.2.0" },
+    { name = "freezegun", specifier = ">=1.5.1" },
+    { name = "keboola-component", specifier = ">=1.6.10" },
+    { name = "keboola-http-client", specifier = ">=1.0.1" },
+    { name = "keboola-utils", specifier = ">=1.1.0" },
+    { name = "mock", specifier = ">=5.2.0" },
+    { name = "pydantic", specifier = ">=2.11.3" },
+    { name = "pyrate-limiter", specifier = ">=3.0.0" },
+    { name = "requests", specifier = ">=2.31.0" },
+    { name = "ruff", specifier = ">=0.11.5" },
 ]
 
 [[package]]
@@ -258,6 +270,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/fe/d3/73d1fe74a156f9a0e519bedc87815ed309e64af19c73b94352e4c0959ddb/pygelf-0.4.2.tar.gz", hash = "sha256:d0bb8f45ff648a9a187713f4a05c09f685fcb8add7b04bb7471f20071bd11aad", size = 11991 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/03/cd/4afdddbc73f54ddf31d16137ef81c3d47192d75754b3115d925926081fd6/pygelf-0.4.2-py3-none-any.whl", hash = "sha256:ab57d1b26bffa014e29ae645ee51d2aa2f0c0cb419c522f2d24a237090b894a1", size = 8714 },
+]
+
+[[package]]
+name = "pyrate-limiter"
+version = "4.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/03/98/2b3dc1ba6bdf2efaeaa3e102124cbd2636a4ccec241ffeb8a1de207f5cd4/pyrate_limiter-4.0.2.tar.gz", hash = "sha256:b678841e2215f114ef6f98c7093755ca3b466de83cb5a881231fd6e321fa14b5", size = 301304 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/13/b9/80ffe3f2c34d3247186d74b1d08c1fed1e3ad4127ff6a8a5501b7bf16a97/pyrate_limiter-4.0.2-py3-none-any.whl", hash = "sha256:35ec42b9bb9cfabcafab14d0c5c6523f48378c3da2949e534ce3cbdfea71eadd", size = 36439 },
 ]
 
 [[package]]
