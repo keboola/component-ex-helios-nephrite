@@ -25,6 +25,13 @@ class Component(ComponentBase):
 
     def run(self):
         self.cfg = Configuration(**self.configuration.parameters)
+
+        if not self.cfg.acknowledge:
+            raise UserException(
+                "Please contact support to set up authorization for this component before use. "
+                "Once configured, check the acknowledgment checkbox to proceed."
+            )
+
         self.state = self.get_state_file() or {"endpoints": {}}
 
         self.client = HeliosNephriteClient(

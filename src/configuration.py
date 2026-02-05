@@ -24,6 +24,7 @@ class Configuration(BaseModel):
     debug: bool = False
 
     # Row settings (merged at runtime)
+    acknowledge: bool = False
     entity: str
     table_name: str = ""
     load_type: LoadType = Field(default=LoadType.incremental_load)
