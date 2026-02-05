@@ -49,30 +49,6 @@
         }
       },
       "propertyOrder": 1
-    },
-    "batch_size": {
-      "type": "integer",
-      "title": "Batch Size",
-      "description": "Number of records per API request",
-      "default": 1000,
-      "minimum": 1,
-      "maximum": 10000,
-      "propertyOrder": 2
-    },
-    "requests_per_minute": {
-      "type": "integer",
-      "title": "Requests Per Minute",
-      "description": "Maximum number of API requests per minute (rate limiting)",
-      "default": 30,
-      "minimum": 1,
-      "maximum": 600,
-      "propertyOrder": 3
-    },
-    "debug": {
-      "type": "boolean",
-      "title": "Debug Mode",
-      "default": false,
-      "propertyOrder": 4
     }
   }
 }
