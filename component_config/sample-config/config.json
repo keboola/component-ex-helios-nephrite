@@ -10,26 +10,20 @@
     }
   },
   "parameters": {
-    "server_url": "https://your-server.heliosnephrite.cz",
-    "user_name": "DOMAIN\\username",
-    "#password": "your_password",
-    "db_profile": "your_db_profile",
-    "use_windows_authentication": false,
-    "language_id": "en",
-    "endpoints": [
-      {
-        "entity": "companies",
-        "table_name": "",
-        "incremental_field": "timestamp"
-      },
-      {
-        "entity": "contacts",
-        "table_name": "",
-        "incremental_field": "timestamp"
-      }
-    ],
+    "connection": {
+      "server_url": "https://your-server.heliosnephrite.cz",
+      "user_name": "DOMAIN\\username",
+      "#password": "your_password",
+      "db_profile": "your_db_profile",
+      "use_windows_authentication": false,
+      "language_id": "en"
+    },
     "batch_size": 1000,
     "requests_per_minute": 30,
-    "debug": false
+    "debug": false,
+    "acknowledge": true,
+    "entity": "companies",
+    "table_name": "",
+    "load_type": "incremental_load"
   }
 }
