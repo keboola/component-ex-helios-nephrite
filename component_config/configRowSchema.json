@@ -1,16 +1,8 @@
 {
   "type": "object",
   "title": "Endpoint Configuration",
-  "required": ["acknowledge", "entity"],
+  "required": ["entity"],
   "properties": {
-    "acknowledge": {
-      "type": "boolean",
-      "title": "I understand I need to contact support to set up this component",
-      "format": "checkbox",
-      "description": "Due to implementation limitations, we currently need to help each new client set up the integration to their Helios instance. This needs to be done only ONCE",
-      "default": false,
-      "propertyOrder": 0
-    },
     "entity": {
       "type": "string",
       "title": "Entity",

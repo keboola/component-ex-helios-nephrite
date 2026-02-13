@@ -10,6 +10,7 @@
     }
   },
   "parameters": {
+    "acknowledge": true,
     "connection": {
       "server_url": "https://your-server.heliosnephrite.cz",
       "user_name": "DOMAIN\\username",
@@ -21,7 +22,6 @@
     "batch_size": 1000,
     "requests_per_minute": 30,
     "debug": false,
-    "acknowledge": true,
     "entity": "companies",
     "table_name": "",
     "load_type": "incremental_load"

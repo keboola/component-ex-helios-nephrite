@@ -18,13 +18,12 @@ class Connection(BaseModel):
 
 
 class Configuration(BaseModel):
+    acknowledge: bool = False
     connection: Connection
     batch_size: int = 1000
     requests_per_minute: int = 30
     debug: bool = False
 
-    # Row settings (merged at runtime)
-    acknowledge: bool = False
     entity: str
     table_name: str = ""
     load_type: LoadType = Field(default=LoadType.incremental_load)
