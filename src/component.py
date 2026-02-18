@@ -39,7 +39,6 @@ class Component(ComponentBase):
             user_name=self.cfg.connection.user_name,
             password=self.cfg.connection.password,
             db_profile=self.cfg.connection.db_profile,
-            use_windows_auth=self.cfg.connection.use_windows_authentication,
             language_id=self.cfg.connection.language_id,
             requests_per_minute=self.cfg.requests_per_minute,
         )
@@ -100,7 +99,10 @@ class Component(ComponentBase):
 
             logging.info(f"Completed extraction: {total_records} records from {entity}")
 
-            self.state.setdefault("endpoints", {})[entity] = {
+            if "endpoints" not in self.state:
+                self.state["endpoints"] = {}
+
+            self.state["endpoints"][entity] = {
                 "last_timestamp": max_timestamp,
                 "last_run_iso": datetime.now(timezone.utc).isoformat(),
                 "records_extracted": total_records,

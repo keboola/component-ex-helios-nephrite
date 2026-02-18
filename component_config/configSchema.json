@@ -41,12 +41,6 @@
           "description": "Database profile name",
           "propertyOrder": 4
         },
-        "use_windows_authentication": {
-          "type": "boolean",
-          "title": "Use Windows Authentication",
-          "default": false,
-          "propertyOrder": 5
-        },
         "language_id": {
           "type": "string",
           "title": "Language",

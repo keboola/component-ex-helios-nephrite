@@ -22,7 +22,6 @@ class TableWriter:
             self._writer = csv.DictWriter(
                 self._file,
                 fieldnames=self._columns,
-                extrasaction="ignore",
             )
             self._writer.writeheader()
 

@@ -16,7 +16,6 @@
       "user_name": "DOMAIN\\username",
       "#password": "your_password",
       "db_profile": "your_db_profile",
-      "use_windows_authentication": false,
       "language_id": "en"
     },
     "batch_size": 1000,

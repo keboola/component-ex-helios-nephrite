@@ -5,7 +5,18 @@ Extracts data from Helios Nephrite ERP system via its REST API.
 
 **Table of Contents:**
 
-[TOC]
+<!-- TOC -->
+* [Helios Nephrite Extractor](#helios-nephrite-extractor)
+* [Prerequisites](#prerequisites)
+* [Features](#features)
+* [Supported Entities](#supported-entities)
+* [Configuration](#configuration)
+  * [Connection](#connection)
+  * [Row Configuration](#row-configuration)
+* [Output](#output)
+* [Development](#development)
+* [Integration](#integration)
+<!-- TOC -->
 
 Prerequisites
 =============

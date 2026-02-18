@@ -13,7 +13,6 @@ class Connection(BaseModel):
     user_name: str
     password: str = Field(alias="#password")
     db_profile: str
-    use_windows_authentication: bool = False
     language_id: str = "en"
 
 
