@@ -12,9 +12,16 @@ dependencies = [
     "requests>=2.31.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "freezegun>=1.5.1",
-    "mock>=5.2.0",
     "ruff>=0.15.0",
+    "mock",
+    "freezegun",
 ]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+extend-select = ["I", "UP"]  # Add isort to default ruff rules

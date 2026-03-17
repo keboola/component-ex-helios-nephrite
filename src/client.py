@@ -3,7 +3,7 @@ Helios Nephrite API client with session-based authentication and rate limiting.
 """
 
 import logging
-from typing import Generator
+from collections.abc import Generator
 
 import backoff
 import requests
@@ -35,9 +35,7 @@ class HeliosNephriteClient:
         rate = Rate(requests_per_minute, Duration.MINUTE)
         self._limiter = Limiter(rate)
 
-        logging.debug(
-            f"Client initialized with rate limit: {requests_per_minute} req/min"
-        )
+        logging.debug(f"Client initialized with rate limit: {requests_per_minute} req/min")
 
     def login(self) -> None:
         logging.info(f"Authenticating to Helios Nephrite at {self.server_url}")
@@ -66,9 +64,7 @@ class HeliosNephriteClient:
             )
 
         if not data.get("success", True):  # Some APIs use success field
-            error_msg = (
-                data.get("errorMessage") or data.get("message") or "Unknown error"
-            )
+            error_msg = data.get("errorMessage") or data.get("message") or "Unknown error"
             raise UserException(f"Login failed: {error_msg}")
 
         self._auth_user = data.get("userName")
@@ -122,7 +118,7 @@ class HeliosNephriteClient:
         entity: str,
         timestamp: int | None = None,
         batch_size: int = 1000,
-    ) -> Generator[list[dict], None, None]:
+    ) -> Generator[list[dict]]:
         skip = 0
         total_fetched = 0
         url = f"{self.server_url}{self.GENERAL_API_PATH}/{entity}"
@@ -142,13 +138,9 @@ class HeliosNephriteClient:
                 data = self._make_request(url, params)
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code == 401:
-                    raise UserException(
-                        "Authentication expired or invalid. Please check credentials."
-                    )
+                    raise UserException("Authentication expired or invalid. Please check credentials.")
                 elif e.response.status_code == 404:
-                    raise UserException(
-                        f"Entity '{entity}' not found. Use sync action to list available entities."
-                    )
+                    raise UserException(f"Entity '{entity}' not found. Use sync action to list available entities.")
                 else:
                     raise UserException(
                         f"API error for entity '{entity}': {e.response.status_code} - {e.response.text}"

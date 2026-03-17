@@ -4,7 +4,7 @@ Helios Nephrite Component - Extracts data from Helios Nephrite ERP API.
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
@@ -55,7 +55,7 @@ class Component(ComponentBase):
 
             self._process_endpoint()
 
-            self.state["last_run"] = datetime.now(timezone.utc).isoformat()
+            self.state["last_run"] = datetime.now(UTC).isoformat()
             self.write_state_file(self.state)
             logging.info("State file updated successfully")
 
@@ -75,9 +75,7 @@ class Component(ComponentBase):
             entity_state = self.state.get("endpoints", {}).get(entity, {})
             last_timestamp = entity_state.get("last_timestamp")
             if last_timestamp is not None:
-                logging.info(
-                    f"Resuming incremental load from timestamp: {last_timestamp}"
-                )
+                logging.info(f"Resuming incremental load from timestamp: {last_timestamp}")
 
         writers = self._init_writers(table_name, is_incremental)
 
@@ -85,14 +83,10 @@ class Component(ComponentBase):
         total_records = 0
 
         try:
-            for batch in self.client.get_entities(
-                entity, last_timestamp, self.cfg.batch_size
-            ):
+            for batch in self.client.get_entities(entity, last_timestamp, self.cfg.batch_size):
                 for record in batch:
                     main_record, child_records = self._split_record(record)
-                    main_record = self._expand_custom_attributes(
-                        main_record, record.get("customAttributes", [])
-                    )
+                    main_record = self._expand_custom_attributes(main_record, record.get("customAttributes", []))
                     writers["main"].writerow(main_record)
 
                     record_id = record.get("id")
@@ -116,7 +110,7 @@ class Component(ComponentBase):
 
             self.state["endpoints"][entity] = {
                 "last_timestamp": max_timestamp,
-                "last_run_iso": datetime.now(timezone.utc).isoformat(),
+                "last_run_iso": datetime.now(UTC).isoformat(),
                 "records_extracted": total_records,
             }
 
@@ -155,9 +149,7 @@ class Component(ComponentBase):
                     record[f"custom_{safe_name}"] = attr.get("value", "")
         return record
 
-    def _init_writers(
-        self, table_name: str, incremental: bool
-    ) -> dict[str, TableWriter]:
+    def _init_writers(self, table_name: str, incremental: bool) -> dict[str, TableWriter]:
         writers = {}
         main_table = self.create_out_table_definition(
             f"{table_name}.csv",
