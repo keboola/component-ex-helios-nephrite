@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class LoadType(str, Enum):
+class LoadType(StrEnum):
     incremental_load = "incremental_load"
     full_load = "full_load"
 
@@ -13,7 +13,6 @@ class Connection(BaseModel):
     user_name: str
     password: str = Field(alias="#password")
     db_profile: str
-    language_id: str = "en"
 
 
 class Configuration(BaseModel):

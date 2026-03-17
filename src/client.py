@@ -20,14 +20,12 @@ class HeliosNephriteClient:
         user_name: str,
         password: str,
         db_profile: str,
-        language_id: str = "en",
         requests_per_minute: int = 30,
     ):
         self.server_url = server_url.rstrip("/")
         self._user_name = user_name
         self._password = password
         self._db_profile = db_profile
-        self._language_id = language_id
         self._session = requests.Session()
         self._auth_user: str | None = None
         self._auth_token: str | None = None
@@ -46,9 +44,7 @@ class HeliosNephriteClient:
                 json={
                     "userName": self._user_name,
                     "password": self._password,
-                    "languageId": self._language_id,
                     "dbProfile": self._db_profile,
-                    "serverURL": self.server_url,
                 },
                 timeout=30,
             )
@@ -90,17 +86,10 @@ class HeliosNephriteClient:
 
     @backoff.on_exception(
         backoff.expo,
-        (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.Timeout,
-            requests.exceptions.HTTPError,
-        ),
+        (requests.exceptions.ConnectionError, requests.exceptions.Timeout),
         max_tries=5,
-        giveup=lambda e: isinstance(e, requests.exceptions.HTTPError)
-        and e.response is not None
-        and e.response.status_code < 500,
     )
-    def _make_request(self, url: str, params: dict) -> dict | list:
+    def _make_request(self, url: str, params: dict) -> dict:
         self._limiter.try_acquire("api_request")
 
         response = self._session.get(
@@ -111,7 +100,20 @@ class HeliosNephriteClient:
         )
 
         response.raise_for_status()
-        return response.json()
+
+        try:
+            data = response.json()
+        except requests.exceptions.JSONDecodeError:
+            raise UserException(
+                f"Unexpected response from server (not JSON). Response: {response.text[:200]}"
+            )
+
+        if not isinstance(data, dict):
+            raise UserException(
+                f"Unexpected API response format: expected object, got {type(data).__name__}. Response: {str(data)[:200]}"
+            )
+
+        return data
 
     def get_entities(
         self,
@@ -140,7 +142,9 @@ class HeliosNephriteClient:
                 if e.response.status_code == 401:
                     raise UserException("Authentication expired or invalid. Please check credentials.")
                 elif e.response.status_code == 404:
-                    raise UserException(f"Entity '{entity}' not found. Use sync action to list available entities.")
+                    raise UserException(
+                        f"Entity '{entity}' not found. Check the list of supported entities in the component configuration or README."
+                    )
                 else:
                     raise UserException(
                         f"API error for entity '{entity}': {e.response.status_code} - {e.response.text}"

@@ -1,49 +1,44 @@
 import csv
-from typing import TextIO
 
 
 class TableWriter:
-    """CSV writer with lazy initialization - columns inferred from first row."""
+    """CSV writer that buffers rows and writes on close with the full column schema."""
 
     def __init__(self, file_path: str):
         self._file_path = file_path
-        self._file: TextIO | None = None
-        self._writer: csv.DictWriter | None = None
-        self._columns: list[str] | None = None
-        self._row_count = 0
+        self._rows: list[dict] = []
+        self._columns: list[str] = []
+        self._column_set: set[str] = set()
 
     def writerow(self, row: dict) -> None:
         if not row:
             return
-
-        if self._writer is None:
-            self._columns = list(row.keys())
-            self._file = open(self._file_path, "w", newline="", encoding="utf-8")
-            self._writer = csv.DictWriter(
-                self._file,
-                fieldnames=self._columns,
-            )
-            self._writer.writeheader()
-
-        self._writer.writerow(row)
-        self._row_count += 1
+        for key in row:
+            if key not in self._column_set:
+                self._columns.append(key)
+                self._column_set.add(key)
+        self._rows.append(row)
 
     def writerows(self, rows: list[dict]) -> None:
         for row in rows:
             self.writerow(row)
 
     def close(self) -> None:
-        if self._file:
-            self._file.close()
-            self._file = None
+        if not self._rows:
+            return
+        with open(self._file_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=self._columns, restval="")
+            writer.writeheader()
+            writer.writerows(self._rows)
+        self._rows.clear()
 
     @property
     def has_data(self) -> bool:
-        return self._row_count > 0
+        return len(self._rows) > 0
 
     @property
     def row_count(self) -> int:
-        return self._row_count
+        return len(self._rows)
 
     def __enter__(self):
         return self

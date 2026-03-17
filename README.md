@@ -66,7 +66,6 @@ Connection
 | User Name                    | Login username (format: DOMAIN\firstname.lastname for Windows auth)     | Yes      |
 | Password                     | Login password                                                           | Yes      |
 | Database Profile             | Database profile name                                                    | Yes      |
-| Language                     | Language for API responses (cs, en, de, sk). Default: en                 | No       |
 
 Row Configuration
 -----------------

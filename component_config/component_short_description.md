@@ -1,1 +1,1 @@
-Helios is a ERP system offering modules for finance, accounting, inventory, sales, purchasing, and business process management.
+Helios is an ERP system offering modules for finance, accounting, inventory, sales, purchasing, and business process management.

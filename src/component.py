@@ -46,7 +46,6 @@ class Component(ComponentBase):
             user_name=self.cfg.connection.user_name,
             password=self.cfg.connection.password,
             db_profile=self.cfg.connection.db_profile,
-            language_id=self.cfg.connection.language_id,
             requests_per_minute=self.cfg.requests_per_minute,
         )
 
@@ -72,12 +71,13 @@ class Component(ComponentBase):
 
         last_timestamp = None
         if is_incremental:
-            entity_state = self.state.get("endpoints", {}).get(entity, {})
+            endpoints_state = self.state.get("endpoints", {})
+            entity_state = endpoints_state.get(entity, {})
             last_timestamp = entity_state.get("last_timestamp")
             if last_timestamp is not None:
                 logging.info(f"Resuming incremental load from timestamp: {last_timestamp}")
 
-        writers = self._init_writers(table_name, is_incremental)
+        writers, table_defs = self._init_writers(table_name, is_incremental)
 
         max_timestamp = last_timestamp
         total_records = 0
@@ -115,7 +115,9 @@ class Component(ComponentBase):
             }
 
         finally:
-            for writer in writers.values():
+            for child_type, writer in writers.items():
+                if child_type != "main" and writer.has_data:
+                    self.write_manifest(table_defs[child_type])
                 writer.close()
 
     def _split_record(self, record: dict) -> tuple[dict, dict[str, list]]:
@@ -149,8 +151,12 @@ class Component(ComponentBase):
                     record[f"custom_{safe_name}"] = attr.get("value", "")
         return record
 
-    def _init_writers(self, table_name: str, incremental: bool) -> dict[str, TableWriter]:
+    def _init_writers(
+        self, table_name: str, incremental: bool
+    ) -> tuple[dict[str, TableWriter], dict]:
         writers = {}
+        table_defs = {}
+
         main_table = self.create_out_table_definition(
             f"{table_name}.csv",
             incremental=incremental,
@@ -165,10 +171,10 @@ class Component(ComponentBase):
                 incremental=incremental,
                 primary_key=["parent_id", "id"],
             )
-            self.write_manifest(child_table)
+            table_defs[child_type] = child_table
             writers[child_type] = TableWriter(child_table.full_path)
 
-        return writers
+        return writers, table_defs
 
 
 if __name__ == "__main__":

@@ -46,17 +46,6 @@
           },
           "propertyOrder": 4
         },
-        "language_id": {
-          "type": "string",
-          "title": "Language",
-          "default": "en",
-          "enum": ["cs", "en", "de", "sk"],
-          "enumNames": ["Czech", "English", "German", "Slovak"],
-          "options": {
-            "tooltip": "Language used for API responses and error messages from the Helios Nephrite server"
-          },
-          "propertyOrder": 5
-        }
       },
       "propertyOrder": 1
     }
