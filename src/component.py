@@ -52,7 +52,6 @@ class Component(ComponentBase):
 
         try:
             self.client.login()
-            logging.info("Successfully authenticated to Helios Nephrite")
 
             self._process_endpoint()
 
