@@ -45,7 +45,7 @@
             "tooltip": "Name of the database profile configured in Helios Nephrite. Contact your Helios administrator if unsure."
           },
           "propertyOrder": 4
-        },
+        }
       },
       "propertyOrder": 1
     }
