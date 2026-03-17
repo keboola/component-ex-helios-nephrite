@@ -35,7 +35,9 @@ class HeliosNephriteClient:
         rate = Rate(requests_per_minute, Duration.MINUTE)
         self._limiter = Limiter(rate)
 
-        logging.debug(f"Client initialized with rate limit: {requests_per_minute} req/min")
+        logging.debug(
+            f"Client initialized with rate limit: {requests_per_minute} req/min"
+        )
 
     def login(self) -> None:
         logging.info(f"Authenticating to Helios Nephrite at {self.server_url}")
@@ -64,7 +66,9 @@ class HeliosNephriteClient:
             )
 
         if not data.get("success", True):  # Some APIs use success field
-            error_msg = data.get("errorMessage") or data.get("message") or "Unknown error"
+            error_msg = (
+                data.get("errorMessage") or data.get("message") or "Unknown error"
+            )
             raise UserException(f"Login failed: {error_msg}")
 
         self._auth_user = data.get("userName")
@@ -90,10 +94,17 @@ class HeliosNephriteClient:
 
     @backoff.on_exception(
         backoff.expo,
-        (requests.exceptions.ConnectionError, requests.exceptions.Timeout),
+        (
+            requests.exceptions.ConnectionError,
+            requests.exceptions.Timeout,
+            requests.exceptions.HTTPError,
+        ),
         max_tries=5,
+        giveup=lambda e: isinstance(e, requests.exceptions.HTTPError)
+        and e.response is not None
+        and e.response.status_code < 500,
     )
-    def _make_request(self, url: str, params: dict) -> dict:
+    def _make_request(self, url: str, params: dict) -> dict | list:
         self._limiter.try_acquire("api_request")
 
         response = self._session.get(
@@ -131,9 +142,13 @@ class HeliosNephriteClient:
                 data = self._make_request(url, params)
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code == 401:
-                    raise UserException("Authentication expired or invalid. Please check credentials.")
+                    raise UserException(
+                        "Authentication expired or invalid. Please check credentials."
+                    )
                 elif e.response.status_code == 404:
-                    raise UserException(f"Entity '{entity}' not found. Use sync action to list available entities.")
+                    raise UserException(
+                        f"Entity '{entity}' not found. Use sync action to list available entities."
+                    )
                 else:
                     raise UserException(
                         f"API error for entity '{entity}': {e.response.status_code} - {e.response.text}"
