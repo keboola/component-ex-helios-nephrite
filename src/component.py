@@ -13,7 +13,14 @@ from client import HeliosNephriteClient
 from configuration import Configuration
 from writer import TableWriter
 
-NESTED_FIELDS = {"addresses", "customAttributes", "customRelations", "categories", "manufacturers", "images"}
+NESTED_FIELDS = {
+    "addresses",
+    "customAttributes",
+    "customRelations",
+    "categories",
+    "manufacturers",
+    "images",
+}
 
 
 class Component(ComponentBase):
@@ -69,7 +76,9 @@ class Component(ComponentBase):
             entity_state = self.state.get("endpoints", {}).get(entity, {})
             last_timestamp = entity_state.get("last_timestamp")
             if last_timestamp is not None:
-                logging.info(f"Resuming incremental load from timestamp: {last_timestamp}")
+                logging.info(
+                    f"Resuming incremental load from timestamp: {last_timestamp}"
+                )
 
         writers = self._init_writers(table_name, is_incremental)
 
@@ -77,10 +86,14 @@ class Component(ComponentBase):
         total_records = 0
 
         try:
-            for batch in self.client.get_entities(entity, last_timestamp, self.cfg.batch_size):
+            for batch in self.client.get_entities(
+                entity, last_timestamp, self.cfg.batch_size
+            ):
                 for record in batch:
                     main_record, child_records = self._split_record(record)
-                    main_record = self._expand_custom_attributes(main_record, record.get("customAttributes", []))
+                    main_record = self._expand_custom_attributes(
+                        main_record, record.get("customAttributes", [])
+                    )
                     writers["main"].writerow(main_record)
 
                     record_id = record.get("id")
@@ -143,7 +156,9 @@ class Component(ComponentBase):
                     record[f"custom_{safe_name}"] = attr.get("value", "")
         return record
 
-    def _init_writers(self, table_name: str, incremental: bool) -> dict[str, TableWriter]:
+    def _init_writers(
+        self, table_name: str, incremental: bool
+    ) -> dict[str, TableWriter]:
         writers = {}
         main_table = self.create_out_table_definition(
             f"{table_name}.csv",
@@ -160,7 +175,7 @@ class Component(ComponentBase):
                 primary_key=["parent_id", "id"],
             )
             self.write_manifest(child_table)
-            writers[child_type] = TableWriter(child_table.full_path, lazy=True)
+            writers[child_type] = TableWriter(child_table.full_path)
 
         return writers
 
