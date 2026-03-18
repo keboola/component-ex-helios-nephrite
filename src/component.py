@@ -8,10 +8,10 @@ from datetime import UTC, datetime
 
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
+from keboola.csvwriter import ElasticDictWriter
 
 from client import HeliosNephriteClient
 from configuration import Configuration
-from writer import TableWriter
 
 NESTED_FIELDS = {
     "addresses",
@@ -29,6 +29,8 @@ class Component(ComponentBase):
         self.cfg: Configuration | None = None
         self.state: dict = {}
         self.client: HeliosNephriteClient | None = None
+        self._writer_cache: dict[str, ElasticDictWriter] = {}
+        self._table_defs: dict = {}
 
     def run(self):
         self.cfg = Configuration(**self.configuration.parameters)
@@ -59,6 +61,10 @@ class Component(ComponentBase):
             logging.info("State file updated successfully")
 
         finally:
+            self._close_writers()
+            for name, table_def in self._table_defs.items():
+                if name in self._writer_cache:
+                    self.write_manifest(table_def)
             if self.client:
                 self.client.logout()
 
@@ -69,56 +75,56 @@ class Component(ComponentBase):
 
         logging.info(f"Processing entity: {entity} -> table: {table_name}")
 
-        last_timestamp = None
-        if is_incremental:
-            endpoints_state = self.state.get("endpoints", {})
-            entity_state = endpoints_state.get(entity, {})
-            last_timestamp = entity_state.get("last_timestamp")
-            if last_timestamp is not None:
-                logging.info(f"Resuming incremental load from timestamp: {last_timestamp}")
+        entity_state: dict = self.state.get("endpoints", {}).get(entity, {})
+        last_timestamp = entity_state.get("last_timestamp") if is_incremental else None
+        if last_timestamp is not None:
+            logging.info(f"Resuming incremental load from timestamp: {last_timestamp}")
+        columns_state = entity_state.get("columns", {})
 
-        writers, table_defs = self._init_writers(table_name, is_incremental)
+        self._table_defs = self._init_table_defs(table_name, is_incremental)
 
         max_timestamp = last_timestamp
         total_records = 0
 
-        try:
-            for batch in self.client.get_entities(entity, last_timestamp, self.cfg.batch_size):
-                for record in batch:
-                    main_record, child_records = self._split_record(record)
-                    main_record = self._expand_custom_attributes(main_record, record.get("customAttributes", []))
-                    writers["main"].writerow(main_record)
+        for batch in self.client.get_entities(entity, last_timestamp, self.cfg.batch_size):
+            for record in batch:
+                main_record, child_records = self._split_record(record)
+                main_record = self._expand_custom_attributes(main_record, record.get("customAttributes", []))
+                self._get_writer("main", columns_state).writerow(main_record)
 
-                    record_id = record.get("id")
-                    for child_type, child_data in child_records.items():
-                        if child_type in writers and child_data:
-                            for child in child_data:
-                                child["parent_id"] = record_id
-                                writers[child_type].writerow(child)
+                record_id = record.get("id")
+                for child_type, child_data in child_records.items():
+                    if child_type in self._table_defs and child_data:
+                        for child in child_data:
+                            child["parent_id"] = record_id
+                            self._get_writer(child_type, columns_state).writerow(child)
 
-                    if is_incremental and record.get("timestamp") is not None:
-                        current_ts = record["timestamp"]
-                        if max_timestamp is None or current_ts > max_timestamp:
-                            max_timestamp = current_ts
+                if is_incremental and record.get("timestamp") is not None:
+                    current_ts = record["timestamp"]
+                    if max_timestamp is None or current_ts > max_timestamp:
+                        max_timestamp = current_ts
 
-                total_records += len(batch)
+            total_records += len(batch)
 
-            logging.info(f"Completed extraction: {total_records} records from {entity}")
+        logging.info(f"Completed extraction: {total_records} records from {entity}")
 
-            if "endpoints" not in self.state:
-                self.state["endpoints"] = {}
+        self.state.setdefault("endpoints", {})[entity] = {
+            "last_timestamp": max_timestamp,
+            "last_run_iso": datetime.now(UTC).isoformat(),
+            "records_extracted": total_records,
+            "columns": {name: list(ew.fieldnames) for name, ew in self._writer_cache.items()},
+        }
 
-            self.state["endpoints"][entity] = {
-                "last_timestamp": max_timestamp,
-                "last_run_iso": datetime.now(UTC).isoformat(),
-                "records_extracted": total_records,
-            }
+    def _get_writer(self, name: str, columns_state: dict) -> ElasticDictWriter:
+        if name not in self._writer_cache:
+            ew = ElasticDictWriter(self._table_defs[name].full_path, columns_state.get(name) or [])
+            ew.writeheader()
+            self._writer_cache[name] = ew
+        return self._writer_cache[name]
 
-        finally:
-            for child_type, writer in writers.items():
-                if child_type != "main" and writer.has_data:
-                    self.write_manifest(table_defs[child_type])
-                writer.close()
+    def _close_writers(self) -> None:
+        for ew in self._writer_cache.values():
+            ew.close()
 
     def _split_record(self, record: dict) -> tuple[dict, dict[str, list]]:
         """Split record into main (scalar) fields and child (array) fields."""
@@ -151,30 +157,21 @@ class Component(ComponentBase):
                     record[f"custom_{safe_name}"] = attr.get("value", "")
         return record
 
-    def _init_writers(
-        self, table_name: str, incremental: bool
-    ) -> tuple[dict[str, TableWriter], dict]:
-        writers = {}
-        table_defs = {}
-
-        main_table = self.create_out_table_definition(
-            f"{table_name}.csv",
-            incremental=incremental,
-            primary_key=["id"],
-        )
-        self.write_manifest(main_table)
-        writers["main"] = TableWriter(main_table.full_path)
-
+    def _init_table_defs(self, table_name: str, incremental: bool) -> dict:
+        table_defs = {
+            "main": self.create_out_table_definition(
+                f"{table_name}.csv",
+                incremental=incremental,
+                primary_key=["id"],
+            )
+        }
         for child_type in NESTED_FIELDS:
-            child_table = self.create_out_table_definition(
+            table_defs[child_type] = self.create_out_table_definition(
                 f"{table_name}_{child_type}.csv",
                 incremental=incremental,
                 primary_key=["parent_id", "id"],
             )
-            table_defs[child_type] = child_table
-            writers[child_type] = TableWriter(child_table.full_path)
-
-        return writers, table_defs
+        return table_defs
 
 
 if __name__ == "__main__":

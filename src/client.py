@@ -104,9 +104,7 @@ class HeliosNephriteClient:
         try:
             data = response.json()
         except requests.exceptions.JSONDecodeError:
-            raise UserException(
-                f"Unexpected response from server (not JSON). Response: {response.text[:200]}"
-            )
+            raise UserException(f"Unexpected response from server (not JSON). Response: {response.text[:200]}")
 
         if not isinstance(data, dict):
             raise UserException(
