@@ -1,19 +1,53 @@
 {
   "type": "object",
-  "title": "extractor configuration",
-  "required": [
-    "print_hello"
-  ],
+  "title": "Helios Nephrite Extractor Configuration",
+  "required": ["acknowledge", "connection"],
   "properties": {
-    "print_hello": {
+    "acknowledge": {
       "type": "boolean",
-      "title": "Print Hello",
-      "propertyOrder": 1
+      "title": "I understand I need to contact support to set up this component",
+      "format": "checkbox",
+      "description": "Due to implementation limitations, we currently need to help each new client set up the integration to their Helios instance. This needs to be done only ONCE",
+      "default": false,
+      "propertyOrder": 0
     },
-    "debug": {
-      "type": "boolean",
-      "title": "Debug",
-      "propertyOrder": 2
+    "connection": {
+      "type": "object",
+      "title": "Connection",
+      "required": ["server_url", "#password", "user_name", "db_profile"],
+      "properties": {
+        "server_url": {
+          "type": "string",
+          "title": "Server URL",
+          "options": {
+            "tooltip": "Base URL of the Helios Nephrite application server, e.g. https://your-server.heliosnephrite.cz"
+          },
+          "propertyOrder": 1
+        },
+        "user_name": {
+          "type": "string",
+          "title": "User Name",
+          "options": {
+            "tooltip": "Login username for the Helios Nephrite instance"
+          },
+          "propertyOrder": 2
+        },
+        "#password": {
+          "type": "string",
+          "title": "Password",
+          "format": "password",
+          "propertyOrder": 3
+        },
+        "db_profile": {
+          "type": "string",
+          "title": "Database Profile",
+          "options": {
+            "tooltip": "Name of the database profile configured in Helios Nephrite. Contact your Helios administrator if unsure."
+          },
+          "propertyOrder": 4
+        }
+      },
+      "propertyOrder": 1
     }
   }
 }

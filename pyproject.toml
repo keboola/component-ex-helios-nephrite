@@ -4,12 +4,25 @@ dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "flake8>=7.2.0",
-    "freezegun>=1.5.1",
+    "backoff>=2.2.1",
     "keboola-component>=1.6.10",
-    "keboola-http-client>=1.0.1",
+    "keboola-csvwriter>=1.0.1",
     "keboola-utils>=1.1.0",
-    "mock>=5.2.0",
     "pydantic>=2.11.3",
-    "ruff>=0.11.5",
+    "pyrate-limiter>=3.0.0",
+    "requests>=2.31.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.0",
+    "mock",
+    "freezegun",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+extend-select = ["I", "UP"]  # Add isort to default ruff rules

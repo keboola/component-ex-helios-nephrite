@@ -1,1 +1,1 @@
-Helios Nephrite short description
+Helios is an ERP system offering modules for finance, accounting, inventory, sales, purchasing, and business process management.
