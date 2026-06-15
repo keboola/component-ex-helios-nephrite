@@ -1,1 +1,1 @@
-Helios is an ERP system offering modules for finance, accounting, inventory, sales, purchasing, and business process management.
+Extracts data from Helios Nephrite ERP.
